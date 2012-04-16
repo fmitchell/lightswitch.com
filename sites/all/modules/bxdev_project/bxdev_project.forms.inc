@@ -178,10 +178,11 @@ function bxdev_project_form_project_node_form_validate($form, &$form_state){
 	
 	// check if end time is less than start time
 	if($values['bxdev_shoot_time2'] != ''){
-		if($values['bxdev_shoot_time2'] < $values['bxdev_shoot_time1']){
+		$shoot_time1 = (int)$values['bxdev_shoot_time1'];
+		$shoot_time2 = (int)$values['bxdev_shoot_time2'];
+		if($shoot_time2 < $shoot_time1){
 			form_set_error('bxdev_shoot_time2', 'End time cannot be less than start time');
-		}
-		
+		}		
 	}
 	
 }
@@ -526,7 +527,7 @@ function bxdev_project_form_alter(&$form, &$form_state, $form_id) {
 			// add the "Any" option
 			$new_options['All'] = '- Any -';
 			// sort alphabetically by key
-			ksort($new_options);
+			asort($new_options);
 			// assign the new options
 			$form['field_project_business_ref_nid']['#options'] = $new_options;
 		}
