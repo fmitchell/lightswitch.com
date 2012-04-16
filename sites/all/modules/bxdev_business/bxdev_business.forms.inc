@@ -215,7 +215,7 @@ function bxdev_business_new_business_form($form, &$form_state) {
     '#title' => t('Phone'),
     '#required' => TRUE,
     '#attributes' => array(
-      'class' => array('phone'),
+      'class' => array('form-phone'),
     ),
     '#prefix' => '<div class="form-float-left">',
     '#suffix' => '</div>',
@@ -248,7 +248,7 @@ function bxdev_business_new_business_form($form, &$form_state) {
     '#title' => t('Phone'),
     '#required' => TRUE,
     '#attributes' => array(
-      'class' => array('phone'),
+      'class' => array('form-phone'),
     ),
     '#prefix' => '<div class="form-float-left">',
     '#suffix' => '</div>',
@@ -284,6 +284,13 @@ function bxdev_business_new_business_form($form, &$form_state) {
 			'class' => array('clearfix'),
 		),
   );
+  $form['production']['title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Title'),
+    '#required' => TRUE,
+    '#prefix' => '<div class="form-float-left">',
+    '#suffix' => '</div>',
+  );
   $form['production']['sale_type'] = array(
     '#type' => 'select',
     '#title' => t('Sale Type'),
@@ -304,7 +311,7 @@ function bxdev_business_new_business_form($form, &$form_state) {
     '#title' => t('Project Type'),
     '#required' => TRUE,
     '#options' => array('449' => 'Standard video', '549' => 'Video with interview', '599' => 'Video with voice over', '50' => 'Monthly Subscription', 'custom' => 'Custom Services'),
-    '#prefix' => '<div class="form-float-left">',
+    '#prefix' => '<div class="clearfix"></div><div class="form-float-left">',
     '#suffix' => '</div>',
   );
   $form['production']['client_price'] = array(
@@ -313,7 +320,7 @@ function bxdev_business_new_business_form($form, &$form_state) {
     '#prefix' => '<div class="form-float-left">',
     '#suffix' => '</div>',
     '#attributes' => array(
-      'class' => array('phone'),
+      'class' => array('form-price'),
     ),
   );
   $form['production']['client_notes'] = array(
@@ -349,10 +356,31 @@ function bxdev_business_new_business_form_submit($form, &$form_state) {
 	//save business
 	$node = new stdClass();
 	$node->type = 'business';
-	$node = node_object_prepare($node);
+	node_object_prepare($node);
 	$node->field_client_ref[LANGUAGE_NONE][0]['uid'] = $user->uid;
 	$node->title = $values['business']['name'];
+	$node->field_address[LANGUAGE_NONE][0]['value'] = $values['business']['address'];
+	$node->field_phone[LANGUAGE_NONE][0]['value'] = $values['business']['phone'];
+	$node->field_email[LANGUAGE_NONE][0]['value'] = $values['business']['email'];
+	$node->field_business_city[LANGUAGE_NONE][0]['value'] = $values['business']['city_state'];
+	$node->field_business_video_approve[LANGUAGE_NONE][0]['value'] = $values['business']['video_approval'];
 	node_save($node);
+	$business = $node;
+
+	//save project
+	$node = new stdClass();
+	$node->type = 'project';
+	node_object_prepare($node);
+	$node->title = $values['production']['title'];
+	$node->field_project_business_ref[LANGUAGE_NONE][0]['nid'] = $business->nid;
+	$node->field_video_type[LANGUAGE_NONE][0]['value'] = $values['production']['sale_type'];
+	$node->field_client_send_terms[LANGUAGE_NONE][0]['value'] = $values['production']['csa'];
+  $node->field_project_type[LANGUAGE_NONE][0]['value'] = $values['production']['project_type'];
+  $node->field_charge_amount[LANGUAGE_NONE][0]['value'] = $values['production']['client_price'];
+  $node->field_pc_notes[LANGUAGE_NONE][0]['value'] = $values['production']['client_notes'];
+  node_save($node);
+
+  $form_state['redirect'] = 'user';
 }
 
 

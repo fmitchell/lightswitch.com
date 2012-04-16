@@ -167,6 +167,7 @@ function bxdev_business_create_business_page($client_id){
       'new_business_form' => $new_business_form,
       'existing_business_form' => $existing_business_form,
       'client_id' => $client_id,
+      'header' => FALSE,
     )
   );
 
@@ -221,6 +222,7 @@ function bxdev_business_theme() {
         'new_business_form' => NULL,
         'existing_business_form' => NULL,
         'client_id' => NULL,
+        'header' => TRUE,
       ),
     ),
   );
@@ -228,21 +230,26 @@ function bxdev_business_theme() {
 
 function theme_bxdev_business_page($vars) {
   drupal_add_js(drupal_get_path('module', 'bxdev_business') . '/bxdev_business.js');
+  $output = array();
 
-  $output = !empty($vars['client_id']) ? '<h2><strong>Business Profile Info</strong> (step 2 of 3)</h2>' : '<h2><strong>Business Profile Info</strong> (step 1 of 2)</h2>';
-  $output = (isset($vars['client_id']) && is_numeric($vars['client_id']))
-    ? '<h2><strong>Business Profile Info</strong> (step 2 of 3)</h2>'
-    : '<h2><strong>Business Profile Info</strong> (step 1 of 2)</h2>';
-	$output .= '<div class="client-select">';
-	$output .= '<a href="#new" class="show-client-add-form">New business</a>';
-	$output .= '<a href="#existing" class="show-client-existing-form">Existing business</a>';
-	$output .= '</div>';
+  if ($vars['header']) {
+    $output[] = (isset($vars['client_id']) && is_numeric($vars['client_id']))
+      ? '<h2><strong>Business Profile Info</strong> (step 2 of 3)</h2>'
+      : '<h2><strong>Business Profile Info</strong> (step 1 of 2)</h2>';
+  }
+  else {
+    $output[] = '<h2><strong>Business Profile Info</strong></h2>';
+  }
 
-	$output .= '<div class="client-add-form">' . drupal_render($vars['new_business_form']) . '</div>';
+  $output[] = '<div class="client-select">';
+	$output[] = '<a href="#new" class="show-client-add-form">New business</a>';
+	$output[] = '<a href="#existing" class="show-client-existing-form">Existing business</a>';
+	$output[] = '</div>';
+	$output[] = '<div class="client-add-form">' . drupal_render($vars['new_business_form']) . '</div>';
 
-	$output .= '<div class="client-existing-form" style="display:none;">' . drupal_render($vars['existing_business_form']) . '</div>';
+	$output[] = '<div class="client-existing-form" style="display:none;">' . drupal_render($vars['existing_business_form']) . '</div>';
 
-	return $output;
+	return implode("\r\n", $output);
 }
 
 

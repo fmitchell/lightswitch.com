@@ -17,7 +17,7 @@
 			$('.client-existing-form').show();
 		});
 
-		$(".phone").mask("999-999-9999 x9999");
+		$(".form-phone").mask("999-999-9999? x9999");
 
 		Drupal.jsAC.prototype.hidePopup = function (keycode) {
 
