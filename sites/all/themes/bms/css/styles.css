@@ -1252,7 +1252,7 @@ input[type="submit"].approve-btn, .approve-yes {
 .left .email { background-position: -234px -140px; }
 .left .address { background-position: -234px -171px; margin-bottom: 12px; }
 
-form input.phone, form input.price {width: 185px; }
+form input.form-phone, form input.form-price {width: 185px; }
 
 .node-type-business.page-node .left iframe {
 	width: 100%;
