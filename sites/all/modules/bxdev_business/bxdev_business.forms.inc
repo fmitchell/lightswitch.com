@@ -185,7 +185,19 @@ function bxdev_business_existing_business_form_submit($form, &$form_state){
 	$form_state['redirect'] = 'sales/add/project/' . $values['existing_business_nid'];
 }
 
+/**
+ * New business form
+ *
+ * @param unknown_type $form
+ * @param unknown_type $form_state
+ * @return unknown
+ */
 function bxdev_business_new_business_form($form, &$form_state) {
+  //mask
+  drupal_add_js(drupal_get_path('module', 'bxdev_business') . '/bxdev_business.js');
+  drupal_add_js(drupal_get_path('theme', 'bms') . '/js/chosen/chosen.jquery.min.js');
+  drupal_add_css(drupal_get_path('theme', 'bms') . '/js/chosen/chosen.css');
+
   $form = array();
 
   $form['client'] = array(
@@ -196,29 +208,62 @@ function bxdev_business_new_business_form($form, &$form_state) {
 			'class' => array('clearfix'),
 		),
   );
+  $form['client']['client_type'] = array(
+    '#type' => 'radios',
+    '#title' => '',
+    '#options' => array('new' => 'New Client', 'existing' => 'Existing Client'),
+    '#default_value' => 'new',
+    '#prefix' => '<div class="client-select">',
+    '#suffix' => '</div>',
+  );
   $form['client']['name'] = array(
     '#type' => 'textfield',
     '#title' => t('Name'),
-    '#required' => TRUE,
     '#prefix' => '<div class="form-float-left">',
     '#suffix' => '</div>',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="client[client_type]"]' => array('value' => 'new'),
+      ),
+    ),
   );
   $form['client']['email'] = array(
     '#type' => 'textfield',
     '#title' => t('Email'),
-    '#required' => TRUE,
     '#prefix' => '<div class="form-float-left">',
     '#suffix' => '</div>',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="client[client_type]"]' => array('value' => 'new'),
+      ),
+    ),
   );
   $form['client']['phone'] = array(
     '#type' => 'textfield',
     '#title' => t('Phone'),
-    '#required' => TRUE,
     '#attributes' => array(
       'class' => array('form-phone'),
     ),
     '#prefix' => '<div class="form-float-left">',
     '#suffix' => '</div>',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="client[client_type]"]' => array('value' => 'new'),
+      ),
+    ),
+  );
+  $form['client']['existing'] = array(
+    '#type' => 'select',
+    '#title' => t('Client'),
+    '#options' => bxdev_business_clients(),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="client[client_type]"]' => array('value' => 'existing'),
+      ),
+    ),
+    '#attributes' => array(
+      'class' => array('form-existing-clients'),
+    ),
   );
 
   $form['business'] = array(
@@ -306,6 +351,24 @@ function bxdev_business_new_business_form($form, &$form_state) {
       ),
     ),
   );
+  $form['production']['shoot_date_start'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Start Date & Time'),
+    '#attributes' => array(
+      'class' => array('form-date'),
+    ),
+    '#prefix' => '<div class="clearfix"></div><div class="form-float-left">',
+    '#suffix' => '</div>',
+  );
+  $form['production']['shoot_date_end'] = array(
+    '#type' => 'textfield',
+    '#title' => t('End Date & Time'),
+    '#attributes' => array(
+      'class' => array('form-date'),
+    ),
+    '#prefix' => '<div class="form-float-left">',
+    '#suffix' => '</div>',
+  );
   $form['production']['project_type'] = array(
     '#type' => 'select',
     '#title' => t('Project Type'),
@@ -341,17 +404,29 @@ function bxdev_business_new_business_form($form, &$form_state) {
   return $form;
 }
 
+/**
+ * New business form submit handler
+ *
+ * @param unknown_type $form
+ * @param unknown_type $form_state
+ */
 function bxdev_business_new_business_form_submit($form, &$form_state) {
   $values = $form_state['values'];
 
   //save client
-	$user = new User();
-	$user->set_email($values['client']['email']);
-	$user->set_role('client');
-	$user->set_full_name($values['client']['name']);
-	$user->set_phone($values['client']['phone']);
-	$user->create();
-	$user = $user->get_user();
+  if ($values['client']['client_type'] == 'new') {
+    $user = new User();
+  	$user->set_email($values['client']['email']);
+  	$user->set_role('client');
+  	$user->set_full_name($values['client']['name']);
+  	$user->set_phone($values['client']['phone']);
+  	$user->create();
+  	$user = $user->get_user();
+  }
+  else {
+    $user = user_load($values['client']['existing']);
+  }
+
 
 	//save business
 	$node = new stdClass();
@@ -375,6 +450,11 @@ function bxdev_business_new_business_form_submit($form, &$form_state) {
 	$node->field_project_business_ref[LANGUAGE_NONE][0]['nid'] = $business->nid;
 	$node->field_video_type[LANGUAGE_NONE][0]['value'] = $values['production']['sale_type'];
 	$node->field_client_send_terms[LANGUAGE_NONE][0]['value'] = $values['production']['csa'];
+
+	$node->field_shoot_date[LANGUAGE_NONE][0]['value'] = strtotime($values['production']['shoot_date_start']);
+	$node->field_shoot_date[LANGUAGE_NONE][0]['value2'] = strtotime($values['production']['shoot_date_end']);
+	$node->field_shoot_date[LANGUAGE_NONE][0] += array('date_type' => 'datestamp', 'timezone' => 'America/Chicago', 'timezone_db' => 'UTC');
+
   $node->field_project_type[LANGUAGE_NONE][0]['value'] = $values['production']['project_type'];
   $node->field_charge_amount[LANGUAGE_NONE][0]['value'] = $values['production']['client_price'];
   $node->field_pc_notes[LANGUAGE_NONE][0]['value'] = $values['production']['client_notes'];

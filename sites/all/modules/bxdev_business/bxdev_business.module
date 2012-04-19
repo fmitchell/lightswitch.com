@@ -26,16 +26,24 @@ function bxdev_business_menu() {
 
 	$items['sales/add/business'] = array(
     'title' => t('Create a New Video Project'),
-		'page callback' => 'bxdev_business_create_business_page',
+		/**'page callback' => 'bxdev_business_create_business_page',
 		'page arguments' => array(3),
 		'file path' => drupal_get_path('module','node'),
-    'file' => 'node.pages.inc',
+    'file' => 'node.pages.inc', **/
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('bxdev_business_new_business_form'),
     'access arguments' => array('add new project'),
     'type' => MENU_CALLBACK,
   );
 
 	$items['sales/autocomplete/businesses'] = array(
 		'page callback' => 'bxdev_business_autocomplete_businesses',
+	  'access arguments' => array('add new project'),
+		'type' => MENU_CALLBACK,
+	);
+
+	$items['sales/autocomplete/clients'] = array(
+		'page callback' => 'bxdev_business_autocomplete_clients',
 	  'access arguments' => array('add new project'),
 		'type' => MENU_CALLBACK,
 	);
@@ -250,6 +258,33 @@ function theme_bxdev_business_page($vars) {
 	$output[] = '<div class="client-existing-form" style="display:none;">' . drupal_render($vars['existing_business_form']) . '</div>';
 
 	return implode("\r\n", $output);
+}
+
+function bxdev_business_clients() {
+  $clients = array();
+  $role = user_role_load_by_name('client');
+
+  $query = db_select('users', 'u');
+  $query->join('users_roles', 'ur', 'u.uid = ur.uid');
+  $query->leftJoin('field_data_field_name', 'fn', 'u.uid = fn.entity_id');
+  $query
+    ->fields('u', array('uid', 'mail'))
+    ->fields('fn', array('field_name_value'))
+    ->condition('ur.rid', $role->rid)
+    ->condition('u.status', 1);
+  $query->distinct();
+  $query->orderBy('fn.field_name_value');
+
+  $result = $query->execute()->fetchAll();
+
+  foreach ($result as $row) {
+    $client = array();
+    $client[] = $row->field_name_value;
+    $client[] = $row->mail;
+    $clients[$row->uid] = implode(' - ', $client);
+  }
+
+  return $clients;
 }
 
 
