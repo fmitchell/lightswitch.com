@@ -275,6 +275,7 @@ function feature_content_types_field_default_fields() {
           'san_rafael' => 'San Rafael CA',
           'santa_fe' => 'Santa Fe NM',
           'santa_maria' => 'Santa Maria',
+          'sarasota' => 'Sarasota FL',
           'savannah' => 'Savannah GA',
           'schenectady' => 'Schenectady NY',
           'scranton' => 'Scranton PA',
@@ -288,6 +289,7 @@ function feature_content_types_field_default_fields() {
           'spring_lake' => 'Spring Lake MI',
           'springfield_illinois' => 'Springfield IL',
           'springfield' => 'Springfield MA',
+          'st_charles' => 'St. Charles IL',
           'st_louis' => 'St. Louis MO',
           'st_paul' => 'St. Paul MN',
           'steubenville' => 'Steubenville OH',
@@ -615,72 +617,6 @@ function feature_content_types_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-business-field_business_video_approve'
-  $fields['node-business-field_business_video_approve'] = array(
-    'field_config' => array(
-      'active' => '1',
-      'cardinality' => '1',
-      'deleted' => '0',
-      'entity_types' => array(),
-      'field_name' => 'field_business_video_approve',
-      'field_permissions' => array(
-        'type' => '2',
-      ),
-      'foreign keys' => array(),
-      'indexes' => array(
-        'value' => array(
-          0 => 'value',
-        ),
-      ),
-      'module' => 'list',
-      'settings' => array(
-        'allowed_values' => array(
-          'client' => 'Client',
-          'business' => 'Business',
-        ),
-        'allowed_values_function' => '',
-        'profile2_private' => FALSE,
-      ),
-      'translatable' => '0',
-      'type' => 'list_text',
-    ),
-    'field_instance' => array(
-      'bundle' => 'business',
-      'default_value' => NULL,
-      'deleted' => '0',
-      'description' => '',
-      'display' => array(
-        'default' => array(
-          'label' => 'above',
-          'module' => 'list',
-          'settings' => array(),
-          'type' => 'list_default',
-          'weight' => 23,
-        ),
-        'teaser' => array(
-          'label' => 'above',
-          'settings' => array(),
-          'type' => 'hidden',
-          'weight' => 0,
-        ),
-      ),
-      'entity_type' => 'node',
-      'field_name' => 'field_business_video_approve',
-      'label' => 'Who approves video?',
-      'required' => 0,
-      'settings' => array(
-        'user_register_form' => FALSE,
-      ),
-      'widget' => array(
-        'active' => 1,
-        'module' => 'options',
-        'settings' => array(),
-        'type' => 'options_select',
-        'weight' => '25',
-      ),
-    ),
-  );
-
   // Exported field: 'node-business-field_client_category'
   $fields['node-business-field_client_category'] = array(
     'field_config' => array(
@@ -988,7 +924,7 @@ function feature_content_types_field_default_fields() {
         'module' => 'options',
         'settings' => array(),
         'type' => 'options_select',
-        'weight' => '0',
+        'weight' => 0,
       ),
     ),
   );
@@ -4526,7 +4462,6 @@ function feature_content_types_field_default_fields() {
     ),
     'field_instance' => array(
       'bundle' => 'project',
-      'default_value' => NULL,
       'deleted' => '0',
       'description' => '',
       'display' => array(
@@ -4583,21 +4518,12 @@ function feature_content_types_field_default_fields() {
       ),
       'widget' => array(
         'active' => 1,
-        'module' => 'image',
+        'module' => 'mupload',
         'settings' => array(
-          'insert' => 0,
-          'insert_class' => '',
-          'insert_default' => array(
-            0 => 'auto',
-          ),
-          'insert_styles' => array(
-            0 => 'auto',
-          ),
-          'insert_width' => '',
           'preview_image_style' => '',
           'progress_indicator' => 'throbber',
         ),
-        'type' => 'image_image',
+        'type' => 'file_mupload',
         'weight' => '23',
       ),
     ),
@@ -6988,6 +6914,7 @@ function feature_content_types_field_default_fields() {
           'san_rafael' => 'San Rafael CA',
           'santa_fe' => 'Santa Fe NM',
           'santa_maria' => 'Santa Maria CA',
+          'sarasota' => 'Sarasota FL',
           'savannah' => 'Savannah GA',
           'schenectady' => 'Schenectady NY',
           'scranton' => 'Scranton PA',
@@ -7547,7 +7474,6 @@ function feature_content_types_field_default_fields() {
   t('W9 form');
   t('Website');
   t('What makes the biz unique different?');
-  t('Who approves video?');
 
   return $fields;
 }
