@@ -23,7 +23,7 @@ function bxdev_business_menu() {
 	  'access arguments' => array('pc'),
 	  'type' => MENU_CALLBACK,
 	);
-	
+
 	$items['sales/add/business'] = array(
     'title' => t('Create a New Video Project'),
 		'page callback' => 'bxdev_business_create_business_page',
@@ -33,7 +33,7 @@ function bxdev_business_menu() {
     'access arguments' => array('add new project'),
     'type' => MENU_CALLBACK,
   );
-  
+
 	$items['sales/autocomplete/businesses'] = array(
 		'page callback' => 'bxdev_business_autocomplete_businesses',
 	  'access arguments' => array('add new project'),
@@ -78,7 +78,7 @@ function bxdev_business_preprocess_node(&$variables) {
 			// get approved photos
 			$project_obj = new Project($project_node->nid);
 			$approved_photos = $project_obj->get_approved_photos();
-			
+
 			// begin video / images markup
 			$video_output .= '<div class="video-wrap-outer"><div class="video-wrap-inner">';
 			// add the video
@@ -86,18 +86,18 @@ function bxdev_business_preprocess_node(&$variables) {
 				// $video_output .= theme('media_vimeo_video', $project['field_project_video'][0]['file']);
 				$video_output .= render($project['field_project_video']);
 			}
-			
+
 			$video_output .= '</div></div>';
-			
+
 			// load the renderable teaser array
 			$teaser = field_attach_view('node', $project_node, 'teaser');
-			
+
 			// begin thumbnail markup
 			$video_output .= '<div class="video-thumbs-wrap clearfix">';
-			// add the video thumb		
-			if(!empty($teaser['field_project_video'])){	
-				$video_output .= render($teaser['field_project_video']);		
-			}		
+			// add the video thumb
+			if(!empty($teaser['field_project_video'])){
+				$video_output .= render($teaser['field_project_video']);
+			}
 			// add the photo thumbs
 			$video_output .= '<div class="photo-thumbs-wrap-outer clearfix"><div class="field-label">Images:</div>';
 			$video_output .= '<div class="photo-thumbs-wrap-inner clearfix">';
@@ -111,7 +111,7 @@ function bxdev_business_preprocess_node(&$variables) {
 				}
 			}
 			$video_output .= '</div></div></div>';
-			
+
 			$variables['video'] = $video_output;
 		}
 	}
@@ -156,23 +156,22 @@ function bxdev_business_block_view($delta = '') {
 /**
  * Page callback: add business
  */
-function bxdev_business_create_business_page(){	
-	drupal_add_js(drupal_get_path('module', 'bxdev_business') . '/bxdev_business.js');
-	
-	// check if client uid is present
-	$arg3 = arg(3);
-	
-	$output = !empty($arg3) ? '<h2><strong>Business Profile Info</strong> (step 2 of 3)</h2>' : '<h2><strong>Business Profile Info</strong> (step 1 of 2)</h2>';
-	$output .= '<div class="client-select">';
-	$output .= '<a href="#new" class="show-client-add-form">New business</a>';
-	$output .= '<a href="#existing" class="show-client-existing-form">Existing business</a>';
-	$output .= '</div>';
-	
-	$output .= '<div class="client-add-form">' . drupal_render(node_add('business')) . '</div>';
-	
-	$output .= '<div class="client-existing-form" style="display:none;">' . drupal_render(drupal_get_form('bxdev_business_existing_business_form')) . '</div>';
-	
-	return $output;	
+function bxdev_business_create_business_page($client_id){
+
+	//$new_business_form = node_add('business');
+	$new_business_form = drupal_get_form('bxdev_business_new_business_form');
+	$existing_business_form = drupal_get_form('bxdev_business_existing_business_form');
+
+	$output =  theme('bxdev_business_page',
+	  array(
+      'new_business_form' => $new_business_form,
+      'existing_business_form' => $existing_business_form,
+      'client_id' => $client_id,
+      'header' => FALSE,
+    )
+  );
+
+	return $output;
 }
 
 /**
@@ -204,7 +203,7 @@ function bxdev_business_autocomplete_businesses(){
 	$arg2 = arg(4);
 	if(!empty($arg2)){
 		$results = db_query("SELECT n.nid, n.title FROM {node} n INNER JOIN {field_data_field_client_ref} c ON n.nid = c.entity_id WHERE c.field_client_ref_uid = :uid AND n.type = 'business' AND n.title LIKE :string", array(':string' => $arg2 . '%', ':uid' => $arg1));
-	}else{		
+	}else{
 		$results = db_query("SELECT nid, title FROM {node} WHERE type = 'business' AND title LIKE :string", array(':string' => $arg1 . '%'));
 	}
 	if($results->rowCount() > 0){
@@ -216,6 +215,42 @@ function bxdev_business_autocomplete_businesses(){
 	}
 }
 
+function bxdev_business_theme() {
+  return array(
+    'bxdev_business_page' => array(
+      'variables' => array(
+        'new_business_form' => NULL,
+        'existing_business_form' => NULL,
+        'client_id' => NULL,
+        'header' => TRUE,
+      ),
+    ),
+  );
+}
+
+function theme_bxdev_business_page($vars) {
+  drupal_add_js(drupal_get_path('module', 'bxdev_business') . '/bxdev_business.js');
+  $output = array();
+
+  if ($vars['header']) {
+    $output[] = (isset($vars['client_id']) && is_numeric($vars['client_id']))
+      ? '<h2><strong>Business Profile Info</strong> (step 2 of 3)</h2>'
+      : '<h2><strong>Business Profile Info</strong> (step 1 of 2)</h2>';
+  }
+  else {
+    $output[] = '<h2><strong>Business Profile Info</strong></h2>';
+  }
+
+  $output[] = '<div class="client-select">';
+	$output[] = '<a href="#new" class="show-client-add-form">New business</a>';
+	$output[] = '<a href="#existing" class="show-client-existing-form">Existing business</a>';
+	$output[] = '</div>';
+	$output[] = '<div class="client-add-form">' . drupal_render($vars['new_business_form']) . '</div>';
+
+	$output[] = '<div class="client-existing-form" style="display:none;">' . drupal_render($vars['existing_business_form']) . '</div>';
+
+	return implode("\r\n", $output);
+}
 
 
 

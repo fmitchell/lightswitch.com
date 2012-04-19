@@ -23,7 +23,7 @@ function bxdev_admin_menu_output_alter(&$content) {
  * Implements hook_menu().
  */
 function bxdev_menu() {
-	
+
   $items['get/body/%'] = array(
     'page callback' => 'bxdev_get_node_body',
 		'page arguments' => array(2),
@@ -46,22 +46,22 @@ function bxdev_menu() {
  */
 function bxdev_node_access($node, $op, $account) {
 	global $user;
-	$is_anon = $user->uid == 0;	
-	if($op == 'view'){	
+	$is_anon = $user->uid == 0;
+	if($op == 'view'){
 		// project
 		if($node->type == 'project'){
 			if($is_anon){
 				$path = substr($_SERVER['REQUEST_URI'], 1);
 				drupal_goto('user', array('query' => array('url' => $path)));
-			}		
+			}
 		// business
 		}else if($node->type == 'business'){
 			if($is_anon && $node->field_public_access['und'][0]['value'] !== '1'){
 				return NODE_ACCESS_DENY;
-			}	
-		}	
-		return NODE_ACCESS_ALLOW;	
-	}	
+			}
+		}
+		return NODE_ACCESS_ALLOW;
+	}
 }
 
 /**
@@ -74,7 +74,7 @@ function bxdev_preprocess_page(&$vars){
 	if(isset($vars['node'])){
 		if(($vars['node']->type == 'business' || $vars['node']->type == 'project') && arg(2) !== 'edit' && arg(2) !== 'delete'){
 			$vars['no_title'] = TRUE;
-		}		
+		}
 	}
 	// sales/add/business
 	if(arg(0) == 'sales' && arg(1) == 'add' && arg(2) == 'business'){
@@ -187,7 +187,7 @@ function bxdev_get_times_array(){
 		'23:00' => '11:00pm',
 		'23:15' => '11:15pm',
 		'23:30' => '11:30pm',
-		'23:45' => '11:45pm',			
+		'23:45' => '11:45pm',
 	);
 	return $times;
 }
@@ -205,27 +205,27 @@ function bxdev_token_info() {
 		'name' => t('Videographer'),
 		'description' => t('Videographer tokens'),
 	);
-	
+
 	$types['sales'] = array(
 		'name' => t('Sales'),
 		'description' => t('Sales tokens'),
 	);
-  
+
 	$types['pc'] = array(
 		'name' => t('PC'),
 		'description' => t('PC tokens'),
 	);
-	
+
 	$types['user'] = array(
 		'name' => t('User'),
 		'description' => t('User tokens'),
 	);
-	
+
 	$types['client'] = array(
 		'name' => t('Client'),
 		'description' => t('Client tokens'),
-	);	
-	
+	);
+
   // project tokens.
   $project['project_url'] = array(
     'name' => t('Project URL'),
@@ -236,22 +236,22 @@ function bxdev_token_info() {
 		'name' => t('Videographer full name'),
 		'description' => t('The Videographer full name'),
 	);
-	
+
 	$sales['full_name'] = array(
 		'name' => t('Sales full name'),
 		'description' => t('The Sales full name'),
 	);
-	
+
 	$pc['full_name'] = array(
 		'name' => t('PC full name'),
 		'description' => t('The PC full name'),
 	);
-	
+
 	$user['username'] = array(
 		'name' => t('Username'),
 		'description' => t('Username'),
 	);
-  
+
 	return array(
 	  'types' => $types,
 	  'tokens' => array(
@@ -268,31 +268,31 @@ function bxdev_token_info() {
  * Implementation of hook_tokens().
  */
 function bxdev_tokens($type, $tokens, array $data = array(), array $options = array()){
-	
+
 	global $base_url;
 	$replacements = array();
-	
+
 	// offer tokens
 	if($type == 'project'){
-		
+
 		foreach($tokens as $name => $original){
-			switch($name){				
+			switch($name){
 				case 'title':
 					$replacements[$original] = $data['project']->project->title;
 					break;
-				
+
 				case 'project_url':
 					$replacements[$original] = $base_url . '/' . drupal_lookup_path('alias', 'node/' . $data['project']->project->nid);
 					break;
-					
+
 				case 'project_link':
 					$replacements[$original] = $data['project_link'];
 					break;
-					
+
 				case 'project_terms_link':
 					$replacements[$original] = $base_url . '/client/terms/' . $data['project']->project->nid . '/' . $data['project']->hash;
 					break;
-					
+
 				case 'project_type_description':
 					if(!empty($data['project']->project->field_line_item_desc['und'][0]['value'])){
 						$replacements[$original] = $data['project']->project->field_line_item_desc['und'][0]['value'];
@@ -301,43 +301,43 @@ function bxdev_tokens($type, $tokens, array $data = array(), array $options = ar
 						$replacements[$original] = bxdev_project_get_project_description($project_type);
 					}
 					break;
-					
+
 				case 'project_charge':
 					$per_month = $data['project']->project->field_project_type['und'][0]['value'] == '50' ? ' per month' : '';
 					$project_charge = $data['project']->project->field_charge_amount['und'][0]['value'];
 					$replacements[$original] = bxdev_format_currency($project_charge) . $per_month;
 					break;
-					
+
 				case 'shoot_date':
 					$replacements[$original] = date('m-d-Y g:ia', $data['project']->project->field_shoot_date['und'][0]['value']);
 					break;
-					
+
 				case 'amount':
 					$replacements[$original] = bxdev_format_currency($data['amount']);
 					break;
-					
+
 				case 'cc_type':
 					$cc_type = '';
 					$replacements[$original] = $cc_type;
 					break;
-					
+
 				case 'cc_four':
 					$cc_four = bxdev_payment_get_cc_last_four($data['project']->project->field_payment_id['und'][0]['value'], $data['project']->client->uid);
 					$replacements[$original] = $cc_four;
 					break;
-					
+
 				case 'pc:full_name':
 					$replacements[$original] = $data['project']->pc->field_name['und'][0]['value'];
 					break;
-				
+
 				case 'pc:email':
 					$replacements[$original] = $data['project']->pc->mail;
 					break;
-				
+
 				case 'pc:phone':
 					$replacements[$original] = $data['project']->pc->field_phone['und'][0]['value'];
 					break;
-					
+
 				case 'sales:full_name':
 					$replacements[$original] = $data['project']->sales->field_name['und'][0]['value'];
 					break;
@@ -348,100 +348,100 @@ function bxdev_tokens($type, $tokens, array $data = array(), array $options = ar
 
 				case 'sales:phone':
 					$replacements[$original] = $data['project']->sales->field_phone['und'][0]['value'];
-					break;						
-					
+					break;
+
 				case 'client:full_name':
 					$replacements[$original] = $data['project']->client->field_name['und'][0]['value'];
 					break;
-				
+
 				case 'client:phone':
 					$replacements[$original] = $data['project']->client->field_phone['und'][0]['value'];
 					break;
-					
+
 				case 'client:email':
 					$replacements[$original] = $data['project']->client->mail;
 					break;
-					
+
 				case 'client:username':
 					$replacements[$original] = $data['project']->client->name;
 					break;
-			
+
 				case 'client:password':
 					$account = new User();
 					$account->load($data['project']->client->uid);
 					$account->reset_password();
 					$replacements[$original] = $account->password;
 					break;
-					
+
 				case 'videographer:full_name':
 					$replacements[$original] = $data['project']->videographer->field_name['und'][0]['value'];
 					break;
-					
+
 				case 'videographer:address':
 					$profile = profile2_load_by_user($data['project']->videographer, 'videographer');
 					$replacements[$original] = nl2br($profile->field_address['und'][0]['value']);
 					break;
-				
+
 				case 'videographer:amount':
 					$replacements[$original] = $data['amount'];
 					break;
-					
+
 				case 'business:title':
 					$replacements[$original] = $data['project']->business->title;
 					break;
-					
+
 				case 'business:address':
 					$replacements[$original] = nl2br($data['project']->business->field_address['und'][0]['value']);
 					break;
-					
+
 				case 'comment:comment':
 					$replacements[$original] = $data['comment'];
 					break;
-					
+
 				case 'comment:date':
 					$replacements[$original] = $data['comment_date'];
 					break;
-					
+
 				case 'comment:author':
 					$replacements[$original] = $data['comment_author'];
 					break;
-					
+
 				case 'comment:declined_reason':
 					$replacements[$original] = $data['declined_reason'];
-					break;					
+					break;
 			}
 		}
-		
+
 	}else if($type == 'videographer'){
-		
+
 		foreach($tokens as $name => $original){
-			switch($name){				
+			switch($name){
 				case 'full_name':
 					$replacements[$original] = !empty($data['full_name']) ? $data['full_name'] : '________';
 					break;
-					
+
 				case 'username':
 					$replacements[$original] = $data['username'];
 					break;
-			
+
 				case 'password':
 					$replacements[$original] = $data['password'];
 					break;
-					
+
 				case 'login_link':
 					$replacements[$original] = $data['login_link'];
 					break;
-					
+
 				case 'address':
 					$replacements[$original] = !empty($data['address']) ? $data['address'] : '________';
-					break;					
+					break;
 			}
 		}
-						
+
 	}else if($type == 'sales'){
 
 		foreach($tokens as $name => $original){
-			switch($name){				
+			switch($name){
 				case 'full_name':
 					$replacements[$original] = $data['full_name'];
 					break;
@@ -459,11 +459,11 @@ function bxdev_tokens($type, $tokens, array $data = array(), array $options = ar
 					break;
 			}
 		}
-					
+
 	}else if($type == 'pc'){
 
 		foreach($tokens as $name => $original){
-			switch($name){				
+			switch($name){
 				case 'full_name':
 					$replacements[$original] = $data['full_name'];
 					break;
@@ -480,12 +480,12 @@ function bxdev_tokens($type, $tokens, array $data = array(), array $options = ar
 					$replacements[$original] = $data['login_link'];
 					break;
 			}
-		}	
-						
+		}
+
 	}else if($type == 'user'){
-		
+
 		foreach($tokens as $name => $original){
-			switch($name){				
+			switch($name){
 				case 'username':
 					$replacements[$original] = $data['username'];
 					break;
@@ -498,30 +498,30 @@ function bxdev_tokens($type, $tokens, array $data = array(), array $options = ar
 					$replacements[$original] = $data['login_link'];
 					break;
 			}
-		}					
-		
+		}
+
 	}else if($type == 'client'){
-		
+
 		foreach($tokens as $name => $original){
-			switch($name){				
+			switch($name){
 				case 'date':
 					$replacements[$original] = date('m-d-Y', time());
 					break;
-					
+
 				case 'cc':
 					$replacements[$original] = $data['cc'];
 					break;
 			}
-		}					
-		
+		}
+
 	}else if($type == 'partner'){
-		
+
 		foreach($tokens as $name => $original){
 			switch($name){
 				case 'title':
 					$replacements[$original] = $data['partner']->title;
 					break;
-				
+
 				case 'manual_city':
 					$manual_city = '';
 					if(!empty($data['city_manual'])){
@@ -531,9 +531,9 @@ function bxdev_tokens($type, $tokens, array $data = array(), array $options = ar
 					break;
 			}
 		}
-		
+
 	}
-			
+
 	return $replacements;
 }
 
@@ -570,7 +570,7 @@ function bxdev_block_view($delta = '') {
 * Implements hook_entity_info_alter().
 */
 function bxdev_entity_info_alter(&$entity_info) {
-	
+
 	// business video thumbnail
   $entity_info['file']['view modes']['business_thumb'] = array(
     'label' => t('Business thumb'),
@@ -582,7 +582,7 @@ function bxdev_entity_info_alter(&$entity_info) {
 	  'label' => t('Video gallery slideshow'),
 	  'custom settings' => TRUE,
 	);
-	
+
 	// gallery slideshow video image
 	$entity_info['file']['view modes']['video_gallery_thumbs'] = array(
 	  'label' => t('Video gallery thumbs'),
@@ -622,19 +622,19 @@ function bxdev_pricing_contact_callback($form, $form_state){
  * Menu callback: get video (front end)
  */
 function bxdev_get_video($node){
-	
+
 	$file = file_load($node->field_gallery_video['und'][0]['fid']);
 	$file = (array) $file;
-	
+
 	$path = file_create_url($file->uri);
-	
+
 	$output = '<style type="text/css">
 	body {
 		padding: 20px;
 		margin: 0;
 		background: #fff;
 	}
-	
+
 	.btn {
 		background-color: #D8611F;
 	  background-image: -moz-linear-gradient(center top , #CF5918 0%, #D45D0D 30%, #CF5918 50%, #FF7E2F 100%);
@@ -649,22 +649,22 @@ function bxdev_get_video($node){
 	  text-transform: none;
 		text-decoration: none;
 	}
-	
+
 	.btn-wrap {
 		padding-top: 30px;
 		text-align: right;
 	}
-	
+
 	.media-vimeo-preview-wrapper {
 		background: #000;
 	}
-	
+
 	</style>';
-		
+
 	$output .= theme('media_vimeo_video', $file);
-	
+
 	$output .= '<div class="btn-wrap"><a href="#" class="btn" onclick="parent.window.location = \'/video-production-services\'">Learn More</a></div>';
-	
+
 	print $output;
 }
 
@@ -677,7 +677,7 @@ function bxdev_get_video($node){
  * Return the formatted body of a given node
  */
 function bxdev_get_node_body($nid){
-	
+
 	$project = new Project(1243);
 	$line_items[] = array(
 		'qty' => 1,
@@ -692,10 +692,10 @@ function bxdev_get_node_body($nid){
 		'line_total' => 399,
 	);
 	$line_items['total'] = 600;
-	$invoice_num = 101;	
-	
+	$invoice_num = 101;
+
 	print theme('invoice', array('project' => $project, 'line_items' => $line_items, 'invoice_num' => $invoice_num));
-	
+
 	// $node = node_load($nid);
 	// $body = '<link href="/' . drupal_get_path('theme', 'bms') . '/css/bms_shadowbox.css" rel="stylesheet" type="text/css">';
 	// // drupal_add_css(drupal_get_path('theme', 'bms') . '/css/bms_shadowbox.css', $option['type'] = 'inline');
@@ -722,6 +722,231 @@ function bxdev_format_currency($value, $sign = TRUE){
 function bxdev_get_filename_string($string){
 	// generate a clean client name used in the file name
 	return preg_replace('/[^\w\.-]/', '_', strtolower($string));
+}
+
+function bxdev_get_city_array() {
+  return array(
+    'aiken' => 'Aiken SC',
+    'albany_georgia' => 'Albany GA',
+    'albany_Albany-Schenectady-Troy' => 'Albany NY',
+    'albuquerque' => 'Albuquerque NM',
+    'amarillo' => 'Amarillo TX',
+    'anchorage' => 'Anchorage KY',
+    'appleton' => 'Appleton WI',
+    'atlanta' => 'Atlanta GA',
+    'arkadelphia' => 'Arkadelphia AR',
+    'auburn' => 'Auburn ME',
+    'augusta' => 'Augusta GA',
+    'austin_MN' => 'Austin MN',
+    'austin' => 'Austin TX',
+    'bakersfield' => 'Bakersfield CA',
+    'baltimore' => 'Baltimore MD',
+    'bangor' => 'Bangor ME',
+    'baton_rouge' => 'Baton Rouge LA',
+    'bay_city' => 'Bay City MI',
+    'beaumont' => 'Beaumont TX',
+    'beckley' => 'Beckley WV',
+    'biloxi' => 'Biloxi MS',
+    'binghamtom' => 'Binghamton NY',
+    'birmingham' => 'Birmingham AL',
+    'bismarck' => 'Bismarck ND',
+    'bluefield' => 'Bluefield WV',
+    'bloomington' => 'Bloomington IL',
+    'boise' => 'Boise ID',
+    'boston' => 'Boston MA',
+    'buffalo' => 'Buffalo NY',
+    'burlington' => 'Burlington VT',
+    'casper' => 'Casper WY',
+    'cedar_rapids' => 'Cedar Rapids IA',
+    'champaign' => 'Champaign IL',
+    'charleston' => 'Charleston SC',
+    'charlotte' => 'Charlotte NC',
+    'chattanooga' => 'Chattanooga TN',
+    'chicago' => 'Chicago IL',
+    'chico' => 'Chico CA',
+    'cincinnati' => 'Cincinnati OH',
+    'cleveland' => 'Cleveland OH',
+    'colorado_springs' => 'Colorado Springs CO',
+    'columbia_MO' => 'Columbia MO',
+    'columbia' => 'Columbia SC',
+    'columbus' => 'Columbus OH',
+    'columbus_georgia' => 'Columbus GA',
+    'corpus_christi' => 'Corpus Christi TX',
+    'dallas' => 'Dallas TX',
+    'davenport' => 'Davenport IA',
+    'dayton' => 'Dayton OH',
+    'denver' => 'Denver CO',
+    'des_moines' => 'Des Moines IA',
+    'detroit' => 'Detroit MI',
+    'dickinson' => 'Dickinson ND',
+    'duluth' => 'Duluth MN',
+    'eau_claire' => 'Eau Claire WI',
+    'el_dorado' => 'El Dorado AR',
+    'el_paso' => 'El Paso TX',
+    'erie' => 'Erie PA',
+    'eugene' => 'Eugene OR',
+    'evansville' => 'Evansville IN',
+    'fargo' => 'Fargo ND',
+    'fishers' => 'Fishers IN',
+    'flint' => 'Flint MI',
+    'fresno' => 'Fresno CA',
+    'ft_myers' => 'Ft. Myers FL',
+    'ft_smith' => 'Ft. Smith AR',
+    'ft_wayne' => 'Ft. Wayne IN',
+    'gulfport' => 'Gulfport MS',
+    'grand_rapids' => 'Grand Rapids MI',
+    'green_bay' => 'Green Bay WI',
+    'greensboro' => 'Greensboro NC',
+    'greenville' => 'Greenville SC',
+    'harlingen' => 'Harlingen TX',
+    'harrisburg' => 'Harrisburg PA',
+    'hartford' => 'Hartford CT',
+    'honolulu_Honolulu' => 'Honolulu HI',
+    'houston' => 'Houston TX',
+    'huntington' => 'Huntington WV',
+    'huntsville' => 'Huntsville AL',
+    'hutchinson' => 'Hutchinson KS',
+    'idaho_falls' => 'Idaho Falls ID',
+    'indianapolis' => 'Indianapolis IN',
+    'jackson' => 'Jackson MS',
+    'jackson_wy' => 'Jackson WY',
+    'jacksonville' => 'Jacksonville FL',
+    'jefferson_city' => 'Jefferson City MO',
+    'johnstown' => 'Johnstown PA',
+    'joplin' => 'Joplin MO',
+    'kansas_city' => 'Kansas City MO',
+    'klamath_falls' => 'Klamath Falls OR',
+    'knoxville_Knoxville' => 'Knoxville TN',
+    'la_crosse' => 'La Crosse WI',
+    'lafayette' => 'Lafayette LA',
+    'lansing' => 'Lansing MI',
+    'las_vegas' => 'Las Vegas NV',
+    'lawton' => 'Lawton OK',
+    'lexington' => 'Lexington KY',
+    'lincoln' => 'Lincoln MA',
+    'little_rock' => 'Little Rock AR',
+    'los_angeles' => 'Los Angeles CA',
+    'louisville' => 'Louisville KY',
+    'lubbock' => 'Lubbock TX',
+    'lynchburg' => 'Lynchburg VA',
+    'macon' => 'Macon GA',
+    'madison' => 'Madison WI',
+    'mason_city' => 'Mason City IA',
+    'medford' => 'Medford OR',
+    'memphis' => 'Memphis TN',
+    'miami' => 'Miami FL',
+    'midland' => 'Midland TX',
+    'milwaukee' => 'Milwaukee WI',
+    'minneapolis' => 'Minneapolis MN',
+    'minot' => 'Minot ND',
+    'mobile_Mobile-Pensacola' => 'Mobile AL',
+    'monroe' => 'Monroe AR',
+    'monterey' => 'Monterey CA',
+    'montgomery' => 'Montgomery AL',
+    'myrtle_beach' => 'Myrtle Beach SC',
+    'naples' => 'Naples FL',
+    'nashville' => 'Nashville TN',
+    'new_bedford' => 'New Bedford PA',
+    'new_buffalo' => 'New Buffalo MI',
+    'new_haven' => 'New Haven CT',
+    'new_orleans' => 'New Orleans LA',
+    'new_york' => 'New York NY',
+    'norfolk' => 'Norfolk VA',
+    'north_jersey' => 'North Jersey NJ',
+    'northampton' => 'Northampton MA',
+    'oak_hill' => 'Oak Hill WV',
+    'oakland' => 'Oakland CA',
+    'odessa' => 'Odessa TX',
+    'oklahoma_city' => 'Oklahoma City OK',
+    'omaha' => 'Omaha NE',
+    'orange_county' => 'Orange County CA',
+    'orlando' => 'Orlando FL',
+    'paducah' => 'Paducah KY',
+    'palm_springs' => 'Palm Springs FL',
+    'panama_city' => 'Panama City FL',
+    'pasco' => 'Pasco WA',
+    'pensacola' => 'Pensacola FL',
+    'peoria' => 'Peoria IL',
+    'peshtigo' => 'Peshtigo WI',
+    'petersburg' => 'Petersburg VA',
+    'philadelphia' => 'Philadelphia PA',
+    'phoenix' => 'Phoenix AZ',
+    'pittsburg' => 'Pittsburg KS',
+    'pittsburgh' => 'Pittsburgh PA',
+    'plattsburgh' => 'Plattsburgh NY',
+    'pocatello' => 'Pocatello ID',
+    'port_arthur' => 'Port Arthur TX',
+    'portland' => 'Portland OR',
+    'providence_Providence-New Bedford' => 'Providence RI',
+    'raleigh' => 'Raleigh NC',
+    'redding' => 'Redding CA',
+    'reno' => 'Reno NV',
+    'rhinelander' => 'Rhinelander WI',
+    'richmond' => 'Richmond VA',
+    'roanoke_Roanoke-Lynchburg' => 'Roanoke VA',
+    'rochester_MN' => 'Rochester MN',
+    'rochester' => 'Rochester NY',
+    'rockford' => 'Rockford IL',
+    'sacramento' => 'Sacramento CA',
+    'saginaw' => 'Saginaw MI',
+    'salinas' => 'Salinas CA',
+    'salisbury' => 'Salisbury MD',
+    'salt_lake_city' => 'Salt Lake City UT',
+    'san_antonio' => 'San Antonio TX',
+    'san_diego' => 'San Diego CA',
+    'san_fran' => 'San Fran CA',
+    'san_jose' => 'San Jose CA',
+    'san_luis_obispo' => 'San Luis Obispo CA',
+    'san_rafael' => 'San Rafael CA',
+    'santa_fe' => 'Santa Fe NM',
+    'santa_maria' => 'Santa Maria',
+    'savannah' => 'Savannah GA',
+    'schenectady' => 'Schenectady NY',
+    'scranton' => 'Scranton PA',
+    'seattle' => 'Seattle WA',
+    'sherman' => 'Sherman TX',
+    'shreveport' => 'Shreveport LA',
+    'sioux_city' => 'Sioux City IA',
+    'sioux_falls' => 'Sioux Falls SD',
+    'south_bend' => 'South Bend IN',
+    'spokane' => 'Spokane WA',
+    'spring_lake' => 'Spring Lake MI',
+    'springfield_illinois' => 'Springfield IL',
+    'springfield' => 'Springfield MA',
+    'st_louis' => 'St. Louis MO',
+    'st_paul' => 'St. Paul MN',
+    'steubenville' => 'Steubenville OH',
+    'superior' => 'Superior WI',
+    'syracuse' => 'Syracuse NY',
+    'tallahassee' => 'Tallahassee FL',
+    'tampa' => 'Tampa FL',
+    'terre_haute' => 'Terre Haute IN',
+    'thomasville' => 'Thomasville GA',
+    'toledo' => 'Toledo OH',
+    'topeka' => 'Topeka KS',
+    'toronto' => 'Toronto ON',
+    'traverse_city' => 'Traverse City MI',
+    'troy' => 'Troy NY',
+    'tucson' => 'Tucson AZ',
+    'tulsa' => 'Tulsa OK',
+    'tupelo' => 'Tupelo GA',
+    'tyler' => 'Tyler TX',
+    'valley_city' => 'Valley City ND',
+    'vancouver' => 'Vancouver BC',
+    'ventura_ca' => 'Ventura CA',
+    'waco' => 'Waco TX',
+    'washington_dc' => 'Washington DC',
+    'wausau' => 'Wausau WI',
+    'weatherford' => 'Weatherford TX',
+    'west_palm_beach' => 'West Palm Beach FL',
+    'wheeling' => 'Wheeling WV',
+    'wichita_Wichita-Hutchinson Plus' => 'Wichita KS',
+    'wichita_falls' => 'Wichita Falls TX',
+    'wilkes_barre' => 'Wilkes-Barre PA',
+    'wilmington' => 'Wilmington DE',
+    'yakima' => 'Yakima WA',
+    'youngstown' => 'Youngstown OH',
+  );
 }
 
 

@@ -42,8 +42,8 @@ p, fieldset {
 	margin: 0 0 1.5em;
 }
 
-a { 
-	color: #0A5C9B; 
+a {
+	color: #0A5C9B;
 	outline: 0!important;
 }
 
@@ -102,7 +102,7 @@ select {
 	width: 350px;
 }
 
-button, 
+button,
 input[type="submit"] {
 	height: 40px;
 	padding: 2px 10px 0;
@@ -343,7 +343,8 @@ footer {
 
 #user-register-form #edit-actions input,
 .page-sales-add #business-node-form #edit-actions input,
-.page-sales-add #project-node-form #edit-actions input {
+.page-sales-add #project-node-form #edit-actions input,
+input.continue {
 	float: right;
 	padding-right: 40px;
 	background: #fb942e url(../images/sprite_global.png) no-repeat 84px -120px;
@@ -469,7 +470,8 @@ footer {
 #edit-field-social-name3,
 #edit-field-social-url3,
 #edit-field-social-name4,
-#edit-field-social-url4 {
+#edit-field-social-url4,
+.form-float-left {
 	float: left;
 	margin-right: 10px;
 }
@@ -785,7 +787,7 @@ input[type="submit"].approve-btn, .approve-yes {
 }
 
 .approve-yes {
-	margin-bottom: 10px; 
+	margin-bottom: 10px;
 }
 
 .approve-cancel {
@@ -966,7 +968,7 @@ input[type="submit"].approve-btn, .approve-yes {
 }
 
 .page-sales-add-cc .progress-disabled {
-	float:left;	
+	float:left;
 	margin-right: 20px;
 	-moz-transition: none;
   -webkit-transition: none;
@@ -1249,6 +1251,8 @@ input[type="submit"].approve-btn, .approve-yes {
 .left .phone { background-position: -234px -106px; }
 .left .email { background-position: -234px -140px; }
 .left .address { background-position: -234px -171px; margin-bottom: 12px; }
+
+form input.form-phone, form input.form-price {width: 185px; }
 
 .node-type-business.page-node .left iframe {
 	width: 100%;
@@ -1561,7 +1565,7 @@ input[type="submit"].approve-btn, .approve-yes {
 }
 
 .sort {
-	margin-left: 120px; 
+	margin-left: 120px;
 }
 
 .pager {
@@ -1755,7 +1759,7 @@ input[type="submit"].approve-btn, .approve-yes {
 .view-display-id-gallery_slideshow img {
 	width: 100%;
 	height: 100%;
-	
+
 }
 
 .view-display-id-gallery_slideshow .views-field-nothing {
