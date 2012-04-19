@@ -18,6 +18,8 @@
 		});
 
 		$(".form-phone").mask("999-999-9999? x9999");
+		$(".form-date").mask("99/99/9999 99:99");
+		$(".form-existing-clients").chosen();
 
 		Drupal.jsAC.prototype.hidePopup = function (keycode) {
 
