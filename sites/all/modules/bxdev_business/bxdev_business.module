@@ -223,6 +223,32 @@ function bxdev_business_autocomplete_businesses(){
 	}
 }
 
+/**
+ * Menu callback: clients autocomplete
+ */
+function bxdev_business_autocomplete_clients(){
+  $role = user_role_load_by_name('client');
+
+  $results = db_query("
+    SELECT fn.field_name_value, u.uid
+    FROM {users} u
+    INNER JOIN {field_data_field_name} fn ON u.uid = fn.entity_id
+    INNER JOIN {users_roles} ur ON u.uid = ur.uid
+    INNER JOIN {role} r ON ur.rid = r.rid
+    WHERE r.rid = :rid
+    AND u.status = 1
+    AND fn.field_name_value LIKE :string",
+    array(':rid' => $role->rid, ':string' => check_plain(arg(3)) . '%'));
+
+	if($results->rowCount() > 0){
+		$items = array();
+		foreach($results as $client){
+			$items[$client->uid] = $client->field_name_value . " [uid:$client->uid]";
+		}
+		drupal_json_output($items);
+	}
+}
+
 function bxdev_business_theme() {
   return array(
     'bxdev_business_page' => array(

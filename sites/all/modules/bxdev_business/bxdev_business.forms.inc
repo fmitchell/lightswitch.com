@@ -253,16 +253,13 @@ function bxdev_business_new_business_form($form, &$form_state) {
     ),
   );
   $form['client']['existing'] = array(
-    '#type' => 'select',
-    '#title' => t('Client'),
-    '#options' => bxdev_business_clients(),
-    '#states' => array(
+		'#type' => 'textfield',
+		'#title' => t('Client'),
+		'#autocomplete_path' => 'sales/autocomplete/clients',
+		'#states' => array(
       'visible' => array(
         ':input[name="client[client_type]"]' => array('value' => 'existing'),
       ),
-    ),
-    '#attributes' => array(
-      'class' => array('form-existing-clients'),
     ),
   );
 
@@ -351,21 +348,25 @@ function bxdev_business_new_business_form($form, &$form_state) {
       ),
     ),
   );
-  $form['production']['shoot_date_start'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Start Date & Time'),
-    '#attributes' => array(
-      'class' => array('form-date'),
-    ),
+  $form['production']['shoot_date_day'] = array(
+    '#type' => 'date_popup',
+    '#title' => t('Shoot Start'),
     '#prefix' => '<div class="clearfix"></div><div class="form-float-left">',
+    '#suffix' => '</div>',
+    '#date_format' => 'Y-m-d',
+    '#required' => TRUE,
+  );
+  $form['production']['shoot_date_start'] = array(
+    '#type' => 'select',
+    '#title' => t('Start Time'),
+    '#options' => bxdev_get_times_array(),
+    '#prefix' => '<div class="form-float-left">',
     '#suffix' => '</div>',
   );
   $form['production']['shoot_date_end'] = array(
-    '#type' => 'textfield',
-    '#title' => t('End Date & Time'),
-    '#attributes' => array(
-      'class' => array('form-date'),
-    ),
+    '#type' => 'select',
+    '#title' => t('End Time'),
+    '#options' => bxdev_get_times_array(),
     '#prefix' => '<div class="form-float-left">',
     '#suffix' => '</div>',
   );
@@ -377,18 +378,18 @@ function bxdev_business_new_business_form($form, &$form_state) {
     '#prefix' => '<div class="clearfix"></div><div class="form-float-left">',
     '#suffix' => '</div>',
   );
-  $form['production']['client_price'] = array(
+  $form['production']['project_price'] = array(
     '#type' => 'textfield',
-    '#title' => t('Client Price'),
+    '#title' => t('Project Price'),
     '#prefix' => '<div class="form-float-left">',
     '#suffix' => '</div>',
     '#attributes' => array(
       'class' => array('form-price'),
     ),
   );
-  $form['production']['client_notes'] = array(
+  $form['production']['production_notes'] = array(
     '#type' => 'textarea',
-    '#title' => t('Client Notes'),
+    '#title' => t('Production Notes'),
     '#prefix' => '<div class="form-float-left">',
     '#suffix' => '</div>',
   );
@@ -424,7 +425,9 @@ function bxdev_business_new_business_form_submit($form, &$form_state) {
   	$user = $user->get_user();
   }
   else {
-    $user = user_load($values['client']['existing']);
+    preg_match('/^(?:\s*|(.*) )?\[\s*uid\s*:\s*(\d+)\s*\]$/', $values['client']['existing'], $matches);
+    list(, $name, $uid) = $matches;
+    $user = user_load($uid);
   }
 
 
@@ -451,13 +454,15 @@ function bxdev_business_new_business_form_submit($form, &$form_state) {
 	$node->field_video_type[LANGUAGE_NONE][0]['value'] = $values['production']['sale_type'];
 	$node->field_client_send_terms[LANGUAGE_NONE][0]['value'] = $values['production']['csa'];
 
-	$node->field_shoot_date[LANGUAGE_NONE][0]['value'] = strtotime($values['production']['shoot_date_start']);
-	$node->field_shoot_date[LANGUAGE_NONE][0]['value2'] = strtotime($values['production']['shoot_date_end']);
+	$start_time = $values['production']['shoot_date_day'] . ' ' . $values['production']['shoot_date_start'];
+	$end_time = $values['production']['shoot_date_day'] . ' ' . $values['production']['shoot_date_end'];
+	$node->field_shoot_date[LANGUAGE_NONE][0]['value'] = strtotime($start_time);
+	$node->field_shoot_date[LANGUAGE_NONE][0]['value2'] = strtotime($end_time);
 	$node->field_shoot_date[LANGUAGE_NONE][0] += array('date_type' => 'datestamp', 'timezone' => 'America/Chicago', 'timezone_db' => 'UTC');
 
   $node->field_project_type[LANGUAGE_NONE][0]['value'] = $values['production']['project_type'];
-  $node->field_charge_amount[LANGUAGE_NONE][0]['value'] = $values['production']['client_price'];
-  $node->field_pc_notes[LANGUAGE_NONE][0]['value'] = $values['production']['client_notes'];
+  $node->field_charge_amount[LANGUAGE_NONE][0]['value'] = $values['production']['project_price'];
+  $node->field_pc_notes[LANGUAGE_NONE][0]['value'] = $values['production']['production_notes'];
   node_save($node);
 
   $form_state['redirect'] = 'user';
